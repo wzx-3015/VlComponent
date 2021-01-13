@@ -2,7 +2,7 @@
  * @Description: 请输入当前文件描述
  * @Author: @Xin (834529118@qq.com)
  * @Date: 2021-01-13 16:49:02
- * @LastEditTime: 2021-01-13 20:52:29
+ * @LastEditTime: 2021-01-13 21:25:49
  * @LastEditors: @Xin (834529118@qq.com)
 -->
 <script>
@@ -47,14 +47,18 @@ export default {
      */
     handleSchemaDOM ({ type, key, props, options }) {
       const placeholder = props.placeholder
+
+      const defaultProps = {
+        props,
+      }
       if (type.toLowerCase() === 'input') {
         // placeholder 通过props传递无效
-        return <el-input v-model={this.keyData[key]} placeholder={placeholder} props={props}  />
+        return <el-input v-model={this.keyData[key]} placeholder={placeholder} {...defaultProps}  />
       }
 
       if (type.toLowerCase() === 'select') {
         return (
-          <el-select v-model={this.keyData[key]} placeholder={placeholder} props={props}>
+          <el-select v-model={this.keyData[key]} placeholder={placeholder} {...defaultProps}>
             {
               this.handleTypeSelect(options)
             }
@@ -68,8 +72,8 @@ export default {
   },
   created () {
     const keyData = {}
-    this.schemaList.forEach(({key}) => {
-      keyData[key] = ''
+    this.schemaList.forEach(({key, defaultValue}) => {
+      keyData[key] = defaultValue || ''
     })
     this.keyData = keyData
   },

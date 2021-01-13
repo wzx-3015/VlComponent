@@ -2,7 +2,7 @@
  * @Description: 请输入当前文件描述
  * @Author: @Xin (834529118@qq.com)
  * @Date: 2021-01-13 15:36:52
- * @LastEditTime: 2021-01-13 20:51:40
+ * @LastEditTime: 2021-01-13 20:57:27
  * @LastEditors: @Xin (834529118@qq.com)
 -->
 <template>
@@ -20,6 +20,7 @@ export default {
         {
           key: 'name',
           type: 'Input',
+          defaultValue: '姓名',
           ui: {
             label: '姓名',
           },
@@ -31,6 +32,7 @@ export default {
         {
           key: 'age',
           type: 'Select',
+          defaultValue: 1,
           ui: {
             label: '年龄',
           },
