@@ -2,7 +2,7 @@
  * @Description: 请输入当前文件描述
  * @Author: @Xin (834529118@qq.com)
  * @Date: 2021-01-13 15:36:52
- * @LastEditTime: 2021-01-13 20:57:27
+ * @LastEditTime: 2021-01-14 13:58:33
  * @LastEditors: @Xin (834529118@qq.com)
 -->
 <template>
@@ -17,12 +17,45 @@ export default {
   data () {
     return {
       list: [
+        // {
+        //   key: 'name',
+        //   type: 'Input',
+        //   defaultValue: '姓名',
+        //   ui: {
+        //     label: '姓名',
+        //   },
+        //   col: {
+        //     span: 12,
+        //   },
+        //   props: {
+        //     placeholder: '请输入年龄',
+        //     clearable: true,
+        //   },
+        // },
+        // {
+        //   key: 'name1',
+        //   type: 'Input',
+        //   defaultValue: '姓名',
+        //   ui: {
+        //     label: '姓名',
+        //   },
+        //   col: {
+        //     span: 12,
+        //   },
+        //   props: {
+        //     placeholder: '请输入年龄',
+        //     clearable: true,
+        //   },
+        // },
         {
-          key: 'name',
+          key: 'name2',
           type: 'Input',
           defaultValue: '姓名',
           ui: {
             label: '姓名',
+          },
+          col: {
+            span: 12,
           },
           props: {
             placeholder: '请输入年龄',
@@ -39,6 +72,9 @@ export default {
           props: {
             placeholder: '请输入年龄',
             clearable: true,
+          },
+          col: {
+            span: 12,
           },
           options: [
             {
