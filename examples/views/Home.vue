@@ -2,12 +2,12 @@
  * @Description: 请输入当前文件描述
  * @Author: @Xin (834529118@qq.com)
  * @Date: 2021-01-13 15:36:52
- * @LastEditTime: 2021-01-15 19:16:43
+ * @LastEditTime: 2021-01-15 22:03:03
  * @LastEditors: @Xin (834529118@qq.com)
 -->
 <template>
   <div class="home">
-    <vl-search @handle-search="handleSearch" :schemaRule="list" />
+    <vl-search @handle-search="handleSearch" :fromData="fromData" :schemaRule="list" />
   </div>
 </template>
 
@@ -16,38 +16,23 @@ export default {
   name: 'Home',
   data () {
     return {
-      
+      fromData: {},
       list: [
-        // {
-        //   key: 'name',
-        //   type: 'Input',
-        //   defaultValue: '姓名',
-        //   ui: {
-        //     label: '姓名',
-        //   },
-        //   col: {
-        //     span: 12,
-        //   },
-        //   props: {
-        //     placeholder: '请输入年龄',
-        //     clearable: true,
-        //   },
-        // },
-        // {
-        //   key: 'name1',
-        //   type: 'Input',
-        //   defaultValue: '姓名',
-        //   ui: {
-        //     label: '姓名',
-        //   },
-        //   col: {
-        //     span: 12,
-        //   },
-        //   props: {
-        //     placeholder: '请输入年龄',
-        //     clearable: true,
-        //   },
-        // },
+        {
+          key: 'name1',
+          type: 'Input',
+          defaultValue: '姓名',
+          ui: {
+            label: '姓名',
+          },
+          col: {
+            span: 8,
+          },
+          props: {
+            placeholder: '请输入年龄',
+            clearable: true,
+          },
+        },
         {
           key: 'name2',
           type: 'Input',
@@ -56,12 +41,13 @@ export default {
             label: '姓名',
           },
           col: {
-            span: 12,
+            span: 8,
           },
           props: {
             placeholder: '请输入名称',
             clearable: true,
             suffixIcon: 'el-icon-date',
+            type: 'password',
           },
           slot: {
             // prefix: '',
@@ -80,13 +66,15 @@ export default {
                   value: 2,
                 }
               ],
-              props: {},
             },
             prepend: () => {
               return (
                 <div onClick={this.handleDemoClick}>123</div>
               )
             },
+          },
+          change: (val) => {
+            console.log('input', val)
           }
         },
         {
@@ -101,7 +89,7 @@ export default {
             clearable: true,
           },
           col: {
-            span: 12,
+            span: 4,
           },
           options: [
             {
@@ -112,18 +100,23 @@ export default {
               name: '女',
               value: 2,
             }
-          ]
+          ],
+          change: this.handleChange
         }
       ]
     }
   },
   methods: {
-    handleSearch (data) {
-      console.log(data)
+    handleSearch () {
+      console.log(this.fromData)
     },
     handleDemoClick () {
       console.log('handleDemoClick')
-    }
+    },
+    handleChange () {
+      this.list[0].key = '1212'
+      this.list[0].defaultValue = '12121212'
+    },
   }
 }
 </script>

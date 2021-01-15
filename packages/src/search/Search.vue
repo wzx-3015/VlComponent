@@ -2,11 +2,12 @@
  * @Description: 请输入当前文件描述
  * @Author: @Xin (834529118@qq.com)
  * @Date: 2021-01-13 16:49:02
- * @LastEditTime: 2021-01-15 19:20:55
+ * @LastEditTime: 2021-01-15 22:01:27
  * @LastEditors: @Xin (834529118@qq.com)
 -->
 <script>
 import { isType } from '@/utils.js'
+import { defaultItmeConfig } from './const'
 
 // 不同类型所对应的处理方法
 const tagTypeFn = {
@@ -22,14 +23,40 @@ export default {
       type: Array,
       default: () => [],
       required: true,
+    },
+    fromData: {
+      type: Object,
+      default: () => {},
+      required: true,
     }
   },
   data () {
     return {
-      fromData: {},
       rowStyle: {},
       h__: null,
     }
+  },
+  computed: {
+    configList () {
+      return this.schemaRule.map(v => {
+        if (!this.fromData[v.key]) {
+          this.$set(this.fromData, v.key, v.defaultValue || '')
+        }
+
+        if (v.slot) {
+          Object.values(v.slot).forEach(e => {
+            if (e && e.key && !this.fromData[e.key]) {
+              this.$set(this.fromData, e.key, e.defaultValue || '')
+            }
+          })
+        }
+
+        return {
+          ...defaultItmeConfig,
+          ...v,
+        }
+      })
+    },
   },
   methods: {
     handleCol ({ label }, DOM) {
@@ -51,13 +78,9 @@ export default {
      * @param {*} options
      * @return {*}
      */
-    generateSelect ({key, props, options}) {
-      const { placeholder } = props
-      const defaultProps = {
-        props: props || {},
-      }
+    generateSelect ({defaultProps, options}) {
       return (
-        <el-select v-model={this.fromData[key]} placeholder={placeholder} {...defaultProps}>
+        <el-select {...defaultProps}>
           {
             this.generateSelectOptions(options)
           }
@@ -90,13 +113,12 @@ export default {
       }
 
       if (isType(slot, 'Object')) {
-        const { key, defaultValue, type } = slot
+        const { type } = slot
 
-        this.$set(this.fromData, key, defaultValue || '')
         return (
           <div slot={slotName}>
             {
-              this[tagTypeFn[type.toLowerCase()]](slot)
+              this[tagTypeFn[type.toLowerCase()]](this.handleProps(slot))
             }
           </div>
         )
@@ -107,18 +129,46 @@ export default {
       return null
     },
     /**
+     * @description:   处理props参数
+     * @param {Object} schema
+     * @return {*}
+     */
+    handleProps (schema) {
+      const { key, props = {}, change } = schema
+
+      const { placeholder, ...rest } = props
+
+      const handleChange = (value) => {
+        this.fromData[key] = value
+        change && change(value)
+      }
+
+      const defaultProps = {
+        on: {
+          input: handleChange,
+        },
+        props: {
+          ...rest,
+          value: this.fromData[key],
+        },
+        attrs: {
+          placeholder: placeholder || '请填写内容',
+        }
+      }
+
+      return {
+        defaultProps,
+        ...schema
+      }
+    },
+    /**
      * @description:   生成Input输入框
      * @param {*}
      * @return {*}
      */
-    generateInput ({key, props, slot}) {
-      const { placeholder } = props
-      const defaultProps = {
-        props: props || {},
-      }
-
+    generateInput ({defaultProps, slot}) {
       return (
-        <el-input class="vl__input" v-model={this.fromData[key]} placeholder={placeholder} {...defaultProps}>
+        <el-input class="vl__input" {...defaultProps}>
           {Object.entries(slot).map(([slotName, slot]) => this.generateSelectSlot(slotName, slot))}
         </el-input>
       )
@@ -138,18 +188,18 @@ export default {
 
       const fn = tagTypeFn[tagType]
 
-      return this[fn](schema)
+      return this[fn](this.handleProps(schema))
     },
     hansleSearch () {
       this.$emit('handle-search', this.fromData)
     }
   },
   created () {
-    this.schemaRule.forEach(({key, defaultValue}) => {
-      this.$set(this.fromData, key, defaultValue || '')
-    })
+    // this.configList.forEach(({key, defaultValue}) => {
+    //   this.$set(this.fromData, key, defaultValue || '')
+    // })
 
-    const total = this.schemaRule.reduce((newVal, currentValue) => (newVal + currentValue.col.span), 0)
+    const total = this.configList.reduce((newVal, currentValue) => (newVal + currentValue.col.span), 0)
 
     if (total <= 24) {
       this.$set(this.rowStyle, 'marginRight', '80px')
@@ -161,7 +211,7 @@ export default {
       <div class="vl-search__container">
         <el-row gutter={10} style={this.rowStyle}>
           {
-            this.schemaRule.map(({ui, col, ...rest}) => {
+            this.configList.map(({ui, col, ...rest}) => {
 
               const { span } = col
 
