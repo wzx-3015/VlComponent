@@ -2,17 +2,23 @@
  * @Description: 请输入当前文件描述
  * @Author: @Xin (834529118@qq.com)
  * @Date: 2021-01-13 16:49:02
- * @LastEditTime: 2021-01-14 14:22:30
+ * @LastEditTime: 2021-01-15 15:15:17
  * @LastEditors: @Xin (834529118@qq.com)
 -->
 <script>
 import { isType } from '@/utils.js'
 
+// 不同类型所对应的处理方法
+const tagTypeFn = {
+  'select': 'generateSelect',
+  'input': 'generateInput',
+}
+
 export default {
   name: 'VlSearch',
   componentName: 'VlSearch',
   props: {
-    schemaList: {
+    schemaRule: {
       type: Array,
       default: () => [],
       required: true,
@@ -22,22 +28,10 @@ export default {
     return {
       fromData: {},
       rowStyle: {},
+      h__: null,
     }
   },
   methods: {
-    /**
-     * @description:   处理Select
-     * @param {*}
-     * @return {*}
-     */
-    handleTypeSelect (options) {
-      // options is Array Is a static resource
-      if (isType(options, 'Array')) {
-        return options.map(({value, name}) => {
-          return <el-option key={value} label={name} value={value} />
-        })
-      }
-    },
     handleCol ({ label }, DOM) {
       // <div class="grid-content bg-purple-dark"></div>
       return (
@@ -51,6 +45,86 @@ export default {
         </el-col>
       )
     },
+
+    /**
+     * @description:   生成下拉选择框
+     * @param {*} options
+     * @return {*}
+     */
+    generateSelect ({key, props, options}) {
+      const { placeholder } = props
+      const defaultProps = {
+        props: props || {},
+      }
+      return (
+        <el-select v-model={this.fromData[key]} placeholder={placeholder} {...defaultProps}>
+          {
+            this.generateSelectOptions(options)
+          }
+        </el-select>
+      )
+    },
+    /**
+     * @description:   生成下拉选择的属性
+     * @param {Array|String|Object} options
+     * @return {*}
+     */
+    generateSelectOptions (options) {
+      // options is Array Is a static resource
+      if (isType(options, 'Array')) {
+        return options.map(({value, name}) => {
+          return <el-option key={value} label={name} value={value} />
+        })
+      }
+    },
+    /**
+     * @description: 生成slot
+     * @param {*} slotName
+     * @param {*} slot
+     * @return {*}
+     */
+    generateSelectSlot(slotName, slot) {
+      // The processing field is null or undefined
+      if (isType(slot, 'String')) {
+        return <i slot={slotName}  class={slot} />
+      }
+
+      if (isType(slot, 'Object')) {
+        const { key, defaultValue, type } = slot
+
+        this.$set(this.fromData, key, defaultValue || '')
+        return (
+          <div slot={slotName}>
+            {
+              this[tagTypeFn[type.toLowerCase()]](slot)
+            }
+          </div>
+        )
+      }
+      if (isType(slot, 'Function')) {
+        return <div slot={slotName}>{slot(this.h__)}</div>
+      }
+      return null
+    },
+    /**
+     * @description:   生成Input输入框
+     * @param {*}
+     * @return {*}
+     */
+    generateInput ({key, props, slot}) {
+      const placeholder = props
+      const defaultProps = {
+        props: props || {},
+      }
+
+      console.log(Object.entries(slot))
+
+      return (
+        <el-input class="vl__input" v-model={this.fromData[key]} placeholder={placeholder} {...defaultProps}>
+          {Object.entries(slot).map(([slotName, slot]) => this.generateSelectSlot(slotName, slot))}
+        </el-input>
+      )
+    },
     /**
      * @description:   根据JSON生成DOM
      * @param {*} type
@@ -59,48 +133,37 @@ export default {
      * @param {*} options
      * @return {*}
      */
-    handleSchemaDOM ({ type, key, props, options}) {
-      const placeholder = props.placeholder
+    handleSchemaDOM (schema) {
+      const { type } = schema
 
-      const defaultProps = {
-        props,
-      }
-      if (type.toLowerCase() === 'input') {
-        // placeholder 通过props传递无效
-        return <el-input class="vl__input" v-model={this.fromData[key]} placeholder={placeholder} {...defaultProps}  />
-      }
+      const tagType = type.toLowerCase()
 
-      if (type.toLowerCase() === 'select') {
-        return (
-          <el-select v-model={this.fromData[key]} placeholder={placeholder} {...defaultProps}>
-            {
-              this.handleTypeSelect(options)
-            }
-          </el-select>
-        )
-      }
+      const fn = tagTypeFn[tagType]
+
+      return this[fn](schema)
     },
     hansleSearch () {
       this.$emit('handle-search', this.fromData)
     }
   },
   created () {
-    this.schemaList.forEach(({key, defaultValue}) => {
+    this.schemaRule.forEach(({key, defaultValue}) => {
       this.$set(this.fromData, key, defaultValue || '')
     })
 
-    const total = this.schemaList.reduce((newVal, currentValue) => (newVal + currentValue.col.span), 0)
+    const total = this.schemaRule.reduce((newVal, currentValue) => (newVal + currentValue.col.span), 0)
 
     if (total <= 24) {
       this.$set(this.rowStyle, 'marginRight', '80px')
     }
   },
-  render () {
+  render (h) {
+    this.h__ = h
     return (
       <div class="vl-search__container">
         <el-row gutter={10} style={this.rowStyle}>
           {
-            this.schemaList.map(({ui, ...rest}) => {
+            this.schemaRule.map(({ui, ...rest}) => {
 
               return (
                 <el-col span={12} class="vl-search-item">
