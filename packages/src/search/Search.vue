@@ -2,7 +2,7 @@
  * @Description: 请输入当前文件描述
  * @Author: @Xin (834529118@qq.com)
  * @Date: 2021-01-13 16:49:02
- * @LastEditTime: 2021-01-15 15:15:17
+ * @LastEditTime: 2021-01-15 19:20:55
  * @LastEditors: @Xin (834529118@qq.com)
 -->
 <script>
@@ -112,12 +112,10 @@ export default {
      * @return {*}
      */
     generateInput ({key, props, slot}) {
-      const placeholder = props
+      const { placeholder } = props
       const defaultProps = {
         props: props || {},
       }
-
-      console.log(Object.entries(slot))
 
       return (
         <el-input class="vl__input" v-model={this.fromData[key]} placeholder={placeholder} {...defaultProps}>
@@ -163,10 +161,12 @@ export default {
       <div class="vl-search__container">
         <el-row gutter={10} style={this.rowStyle}>
           {
-            this.schemaRule.map(({ui, ...rest}) => {
+            this.schemaRule.map(({ui, col, ...rest}) => {
+
+              const { span } = col
 
               return (
-                <el-col span={12} class="vl-search-item">
+                <el-col span={span} class="vl-search-item">
                   <label style="width: 80px" class="vl-search-item__label">{ui.label}：</label>
                   <div style="margin-left: 80px;">
                     {this.handleSchemaDOM({...rest})}
