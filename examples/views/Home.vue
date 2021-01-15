@@ -2,7 +2,7 @@
  * @Description: 请输入当前文件描述
  * @Author: @Xin (834529118@qq.com)
  * @Date: 2021-01-13 15:36:52
- * @LastEditTime: 2021-01-15 22:03:03
+ * @LastEditTime: 2021-01-15 22:15:02
  * @LastEditors: @Xin (834529118@qq.com)
 -->
 <template>
@@ -74,33 +74,29 @@ export default {
             },
           },
           change: (val) => {
-            console.log('input', val)
+            console.log('input', this, val)
           }
         },
         {
           key: 'age',
           type: 'Select',
-          defaultValue: 1,
+          defaultValue: '',
           ui: {
             label: '年龄',
           },
           props: {
             placeholder: '请输入年龄',
             clearable: true,
+            filterable: true,
+            remote: true,
+            remoteMethod: (query) => {
+              this.list[2].options = [{name: '男', value: 1}].filter(v => v.name.includes(query))
+            }
           },
           col: {
             span: 4,
           },
-          options: [
-            {
-              name: '男',
-              value: 1,
-            },
-            {
-              name: '女',
-              value: 2,
-            }
-          ],
+          options: [],
           change: this.handleChange
         }
       ]

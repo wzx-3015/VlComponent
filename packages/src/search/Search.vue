@@ -2,7 +2,7 @@
  * @Description: 请输入当前文件描述
  * @Author: @Xin (834529118@qq.com)
  * @Date: 2021-01-13 16:49:02
- * @LastEditTime: 2021-01-15 22:01:27
+ * @LastEditTime: 2021-01-15 22:14:51
  * @LastEditors: @Xin (834529118@qq.com)
 -->
 <script>
@@ -140,7 +140,7 @@ export default {
 
       const handleChange = (value) => {
         this.fromData[key] = value
-        change && change(value)
+        change && change()
       }
 
       const defaultProps = {
