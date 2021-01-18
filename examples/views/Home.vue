@@ -2,12 +2,12 @@
  * @Description: 请输入当前文件描述
  * @Author: @Xin (834529118@qq.com)
  * @Date: 2021-01-13 15:36:52
- * @LastEditTime: 2021-01-15 22:15:02
+ * @LastEditTime: 2021-01-18 16:31:09
  * @LastEditors: @Xin (834529118@qq.com)
 -->
 <template>
   <div class="home">
-    <vl-search @handle-search="handleSearch" :fromData="fromData" :schemaRule="list" />
+    <vl-search :globalOptions="options" :fromData="fromData" :schemaRule="list" />
   </div>
 </template>
 
@@ -17,6 +17,15 @@ export default {
   data () {
     return {
       fromData: {},
+      options: {
+        gutter: 10,
+        col: {
+          span: 12,
+        },
+        submitClick: () => {
+          console.log('===')
+        }
+      },
       list: [
         {
           key: 'name1',
@@ -24,9 +33,6 @@ export default {
           defaultValue: '姓名',
           ui: {
             label: '姓名',
-          },
-          col: {
-            span: 8,
           },
           props: {
             placeholder: '请输入年龄',
@@ -81,14 +87,22 @@ export default {
           key: 'age',
           type: 'Select',
           defaultValue: '',
+          options: [
+            {
+              name: '男',
+              value: 1,
+            },
+            {
+              name: '女',
+              value: 2,
+            }
+          ],
           ui: {
             label: '年龄',
           },
           props: {
             placeholder: '请输入年龄',
-            clearable: true,
-            filterable: true,
-            remote: true,
+            multiple: true,
             remoteMethod: (query) => {
               this.list[2].options = [{name: '男', value: 1}].filter(v => v.name.includes(query))
             }
@@ -96,8 +110,36 @@ export default {
           col: {
             span: 4,
           },
-          options: [],
           change: this.handleChange
+        },
+        {
+          key: 'time',
+          type: 'TimePicker',
+          defaultValue: '',
+          ui: {
+            label: '选择时间',
+          },
+          props: {
+            isRange: true,
+            placeholder: '请选择时间',
+          },
+          col: {
+            span: 10,
+          },
+        },
+        {
+          key: 'dateTime',
+          type: 'DatePicker',
+          defaultValue: new Date(),
+          ui: {
+            label: '选择日期',
+          },
+          props: {
+            type: 'datetimerange',
+          },
+          col: {
+            span: 4,
+          },
         }
       ]
     }

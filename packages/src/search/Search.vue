@@ -2,17 +2,19 @@
  * @Description: 请输入当前文件描述
  * @Author: @Xin (834529118@qq.com)
  * @Date: 2021-01-13 16:49:02
- * @LastEditTime: 2021-01-15 22:14:51
+ * @LastEditTime: 2021-01-18 16:31:01
  * @LastEditors: @Xin (834529118@qq.com)
 -->
 <script>
-import { isType } from '@/utils.js'
+import { isType, merge } from '@/utils.js'
 import { defaultItmeConfig } from './const'
 
 // 不同类型所对应的处理方法
 const tagTypeFn = {
   'select': 'generateSelect',
   'input': 'generateInput',
+  'timepicker': 'generateTimePicker',
+  'datepicker': 'generateDatePicker',
 }
 
 export default {
@@ -28,6 +30,10 @@ export default {
       type: Object,
       default: () => {},
       required: true,
+    },
+    globalOptions: {
+      type: Object,
+      default: () => {},
     }
   },
   data () {
@@ -37,42 +43,36 @@ export default {
     }
   },
   computed: {
+    gutter () {
+      return this.globalOptions.gutter
+    },
     configList () {
-      return this.schemaRule.map(v => {
-        if (!this.fromData[v.key]) {
-          this.$set(this.fromData, v.key, v.defaultValue || '')
+      const config = merge(defaultItmeConfig, this.globalOptions)
+      
+      return this.schemaRule.map(c => {
+        if (!this.fromData[c.key]) {
+          this.$set(this.fromData, c.key, c.defaultValue || '')
         }
 
-        if (v.slot) {
-          Object.values(v.slot).forEach(e => {
+        if (c.slot) {
+          Object.values(c.slot).forEach(e => {
             if (e && e.key && !this.fromData[e.key]) {
               this.$set(this.fromData, e.key, e.defaultValue || '')
             }
           })
         }
 
-        return {
-          ...defaultItmeConfig,
-          ...v,
-        }
+        return merge(config, c)
       })
     },
   },
   methods: {
-    handleCol ({ label }, DOM) {
-      // <div class="grid-content bg-purple-dark"></div>
-      return (
-        <el-col span={12}>
-          <div>
-            <label class="vl-search__label" from={label}>
-              {label}
-            </label>
-            {DOM}
-          </div>
-        </el-col>
-      )
+    generateTimePicker ({defaultProps}) {
+      return <el-time-picker {...defaultProps} />
     },
-
+    generateDatePicker ({defaultProps}) {
+      return <el-date-picker {...defaultProps} />
+    },
     /**
      * @description:   生成下拉选择框
      * @param {*} options
@@ -149,7 +149,7 @@ export default {
         },
         props: {
           ...rest,
-          value: this.fromData[key],
+          value: this.fromData[key]
         },
         attrs: {
           placeholder: placeholder || '请填写内容',
@@ -209,7 +209,7 @@ export default {
     this.h__ = h
     return (
       <div class="vl-search__container">
-        <el-row gutter={10} style={this.rowStyle}>
+        <el-row gutter={this.gutter} style={this.rowStyle}>
           {
             this.configList.map(({ui, col, ...rest}) => {
 
@@ -217,7 +217,7 @@ export default {
 
               return (
                 <el-col span={span} class="vl-search-item">
-                  <label style="width: 80px" class="vl-search-item__label">{ui.label}：</label>
+                  {ui.label ? <label style="width: 80px" class="vl-search-item__label">{ui.label}：</label> : null}
                   <div style="margin-left: 80px;">
                     {this.handleSchemaDOM({...rest})}
                   </div>
