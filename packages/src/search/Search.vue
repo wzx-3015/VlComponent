@@ -2,7 +2,7 @@
  * @Description: 请输入当前文件描述
  * @Author: @Xin (834529118@qq.com)
  * @Date: 2021-01-13 16:49:02
- * @LastEditTime: 2021-01-18 16:31:01
+ * @LastEditTime: 2021-01-18 18:34:55
  * @LastEditors: @Xin (834529118@qq.com)
 -->
 <script>
@@ -15,7 +15,10 @@ const tagTypeFn = {
   'input': 'generateInput',
   'timepicker': 'generateTimePicker',
   'datepicker': 'generateDatePicker',
+  'button': 'generateButton'
 }
+
+const isKey = ['Button']
 
 export default {
   name: 'VlSearch',
@@ -50,7 +53,7 @@ export default {
       const config = merge(defaultItmeConfig, this.globalOptions)
       
       return this.schemaRule.map(c => {
-        if (!this.fromData[c.key]) {
+        if (c.key && !this.fromData[c.key]) {
           this.$set(this.fromData, c.key, c.defaultValue || '')
         }
 
@@ -72,6 +75,9 @@ export default {
     },
     generateDatePicker ({defaultProps}) {
       return <el-date-picker {...defaultProps} />
+    },
+    generateButton ({defaultProps, ui}) {
+      return <el-button {...defaultProps}>{ui.label}</el-button>
     },
     /**
      * @description:   生成下拉选择框
@@ -134,13 +140,17 @@ export default {
      * @return {*}
      */
     handleProps (schema) {
-      const { key, props = {}, change } = schema
+      const { key, props = {}, change, click, type } = schema
 
       const { placeholder, ...rest } = props
 
       const handleChange = (value) => {
         this.fromData[key] = value
         change && change()
+      }
+
+      const handleBtnClick = () => {
+        click && click()
       }
 
       const defaultProps = {
@@ -154,6 +164,10 @@ export default {
         attrs: {
           placeholder: placeholder || '请填写内容',
         }
+      }
+
+      if (isKey.includes(type)) {
+        defaultProps.on.click = handleBtnClick
       }
 
       return {
@@ -209,26 +223,23 @@ export default {
     this.h__ = h
     return (
       <div class="vl-search__container">
-        <el-row gutter={this.gutter} style={this.rowStyle}>
+        <el-row gutter={this.gutter} class="vl-row">
           {
-            this.configList.map(({ui, col, ...rest}) => {
+            this.configList.map(({ui, col, type, ...rest}) => {
 
               const { span } = col
 
               return (
                 <el-col span={span} class="vl-search-item">
-                  {ui.label ? <label style="width: 80px" class="vl-search-item__label">{ui.label}：</label> : null}
-                  <div style="margin-left: 80px;">
-                    {this.handleSchemaDOM({...rest})}
+                  {ui.label && type.toLowerCase() !== 'button'  ? <label style="width: 80px" class="vl-search-item__label">{ui.label}：</label> : null}
+                  <div style="margin-left: 80px;" class="vl-search-item__content">
+                    {this.handleSchemaDOM({type, ui, ...rest})}
                   </div>
                 </el-col>
               )
             })
           }
         </el-row>
-        <div class="vl-search__btn">
-          <el-button onClick={this.hansleSearch}>查看</el-button>
-        </div>
       </div>
     )
   },
@@ -260,10 +271,6 @@ export default {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-  }
-
-  .vl-search__btn{
-    float: right;
   }
 }
 </style>

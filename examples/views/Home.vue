@@ -2,7 +2,7 @@
  * @Description: 请输入当前文件描述
  * @Author: @Xin (834529118@qq.com)
  * @Date: 2021-01-13 15:36:52
- * @LastEditTime: 2021-01-18 16:31:09
+ * @LastEditTime: 2021-01-18 18:34:20
  * @LastEditors: @Xin (834529118@qq.com)
 -->
 <template>
@@ -138,8 +138,23 @@ export default {
             type: 'datetimerange',
           },
           col: {
+            span: 10,
+          },
+        },
+        {
+          type: 'Button',
+          ui: {
+            label: '选择日期',
+          },
+          props: {
+            type: 'success',
+          },
+          col: {
             span: 4,
           },
+          click: () => {
+            console.log('click')
+          }
         }
       ]
     }
