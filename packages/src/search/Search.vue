@@ -2,7 +2,7 @@
  * @Description: 请输入当前文件描述
  * @Author: @Xin (834529118@qq.com)
  * @Date: 2021-01-13 16:49:02
- * @LastEditTime: 2021-01-19 16:57:17
+ * @LastEditTime: 2021-01-19 17:24:57
  * @LastEditors: @Xin (834529118@qq.com)
 -->
 <script>
@@ -201,7 +201,7 @@ export default {
         const { type } = slot
 
         return (
-          <div slot={slotName}>
+          <div slot={slotName} class="slot-content">
             {
               type && this[tagTypeFn[type]](this.handleProps(slot))
             }
@@ -236,7 +236,8 @@ export default {
         },
         attrs: {
           placeholder: placeholder || '请填写内容',
-        }
+        },
+        class: ['vl-width-auto']
       }
 
       // 循环处理事件
@@ -303,7 +304,7 @@ export default {
                 !hide &&
                 <el-col span={span} class="vl-search-item">
                   {ui.label && type !== 'button'  ? <label style={labelStyle} class="vl-search-item__label">{ui.label}：</label> : null}
-                  <div style={contentStyle} class="vl-search-item__content">
+                  <div style={type !== 'button' && contentStyle} class="vl-search-item__content">
                     {this.handleSchemaDOM({type, ui, hide, ...rest})}
                   </div>
                 </el-col>
@@ -331,6 +332,7 @@ export default {
 
   .vl-search-item{
     margin-bottom: 10px;
+    overflow: hidden;
   }
 
   .vl-search-item__label{
@@ -342,6 +344,17 @@ export default {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  .vl-width-auto{
+    width: 100%;
+  }
+  .vl-width-auto.el-button {
+    width: auto;
+  }
+
+  .slot-content .vl-width-auto{
+    width: auto;
   }
 }
 </style>

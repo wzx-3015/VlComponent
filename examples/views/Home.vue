@@ -2,7 +2,7 @@
  * @Description: 请输入当前文件描述
  * @Author: @Xin (834529118@qq.com)
  * @Date: 2021-01-13 15:36:52
- * @LastEditTime: 2021-01-19 16:56:21
+ * @LastEditTime: 2021-01-19 17:25:37
  * @LastEditors: @Xin (834529118@qq.com)
 -->
 <template>
@@ -20,7 +20,7 @@ export default {
       options: {
         gutter: 10,
         col: {
-          span: 12,
+          span: 24,
         },
         labelWidth: 80,
       },
@@ -43,9 +43,6 @@ export default {
           defaultValue: '',
           ui: {
             label: '姓名',
-          },
-          col: {
-            span: 8,
           },
           props: {
             placeholder: '请输入名称',
@@ -108,9 +105,6 @@ export default {
           props: {
             placeholder: '请输入年龄',
           },
-          col: {
-            span: 4,
-          },
           on: {
             change: this.handleChange
           }
@@ -126,9 +120,6 @@ export default {
             isRange: true,
             placeholder: '请选择时间',
           },
-          col: {
-            span: 10,
-          },
         },
         {
           key: 'dateTime',
@@ -140,9 +131,6 @@ export default {
           props: {
             type: 'datetimerange',
           },
-          col: {
-            span: 10,
-          },
         },
         {
           type: 'Button',
@@ -151,9 +139,6 @@ export default {
           },
           props: {
             type: 'success',
-          },
-          col: {
-            span: 4,
           },
           on: {
             click: this.handleDemoClick
