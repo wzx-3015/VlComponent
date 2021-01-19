@@ -2,14 +2,13 @@
  * @Description: 请输入当前文件描述
  * @Author: @Xin (834529118@qq.com)
  * @Date: 2021-01-13 16:49:02
- * @LastEditTime: 2021-01-18 18:34:55
+ * @LastEditTime: 2021-01-19 16:57:17
  * @LastEditors: @Xin (834529118@qq.com)
 -->
 <script>
 import { isType, merge } from '@/utils.js'
 import { defaultItmeConfig } from './const'
 
-// 不同类型所对应的处理方法
 const tagTypeFn = {
   'select': 'generateSelect',
   'input': 'generateInput',
@@ -18,7 +17,24 @@ const tagTypeFn = {
   'button': 'generateButton'
 }
 
-const isKey = ['Button']
+const handleLabelWidth = (labelWidth) => {
+  const widthIsNumber =  isType(Number(labelWidth), 'Number')
+
+  const width = widthIsNumber ? `${labelWidth}px` : labelWidth
+
+  const labelStyle = {
+    width
+  }
+
+  const contentStyle = {
+    marginLeft: width
+  }
+
+  return {
+    labelStyle,
+    contentStyle
+  }
+}
 
 export default {
   name: 'VlSearch',
@@ -43,33 +59,96 @@ export default {
     return {
       rowStyle: {},
       h__: null,
+      rule__list: [],
     }
   },
   computed: {
     gutter () {
       return this.globalOptions.gutter
     },
-    configList () {
-      const config = merge(defaultItmeConfig, this.globalOptions)
-      
-      return this.schemaRule.map(c => {
-        if (c.key && !this.fromData[c.key]) {
-          this.$set(this.fromData, c.key, c.defaultValue || '')
-        }
-
-        if (c.slot) {
-          Object.values(c.slot).forEach(e => {
-            if (e && e.key && !this.fromData[e.key]) {
-              this.$set(this.fromData, e.key, e.defaultValue || '')
-            }
-          })
-        }
-
-        return merge(config, c)
-      })
+    globalConfig () {
+      return Object.freeze(merge(defaultItmeConfig, this.globalOptions))
     },
   },
   methods: {
+    /**
+     * @description:   处理配置信息
+     * @param {*} schemaRule
+     * @param {*} globalOptions
+     * @return {*}
+     */
+    handleSchemaRuleJson (schemaRule, globalConfig) {
+      return schemaRule.map(v => {
+        const configData = merge(globalConfig, v)
+
+        const {slot, type} = configData
+
+        type && (configData.type = type.toLowerCase())
+
+        Object.values(slot).forEach(s => {
+          s.type && (s.type = s.type.toLowerCase())
+        })
+
+        return configData
+      })
+    },
+    /**
+     * @description:   创建数据
+     * @param {*} configList
+     * @return {*}
+     */
+    createData (configList){
+      configList.forEach(v => {
+        const {key, defaultValue, slot} = v
+        key && !this.fromData[key] && this.$set(this.fromData, key, defaultValue || '')
+
+        const slots = slot ? Object.values(slot) : []
+        if (slots.length) {
+          this.createData(slots)
+        }
+      })
+    },
+    /**
+     * @description:  添加配置信息开放接口
+     * @param {*} config
+     * @return {*}
+     */
+    addSchemaRule (config) {
+      if (!isType(config, 'Array')) {
+        console.error('[Search Component] config Expected Array, got Object')
+        return
+      }
+
+      const { globalConfig } = this
+
+      const data = this.handleSchemaRuleJson(config, globalConfig)
+
+      this.createData(config)
+
+      this.rule__list = [].concat(this.rule__list, data)
+    },
+    getRuleList () {
+      return this.rule__list
+    },
+    setConfig (key, path, attr, data) {
+      const configRule = this.rule__list.find(v => v['key'] === key)
+
+      if (!configRule) {
+        console.error(`${key} is undefined`)
+        return
+      }
+
+      const val = path.split('.').reduce((m, n) => {
+        return m && m[n]
+      }, configRule)
+
+       if (!val) {
+        console.error(`${path} is undefined`)
+        return
+      }
+
+      this.$set(val, attr, data)
+    },
     generateTimePicker ({defaultProps}) {
       return <el-time-picker {...defaultProps} />
     },
@@ -124,7 +203,7 @@ export default {
         return (
           <div slot={slotName}>
             {
-              this[tagTypeFn[type.toLowerCase()]](this.handleProps(slot))
+              type && this[tagTypeFn[type]](this.handleProps(slot))
             }
           </div>
         )
@@ -140,22 +219,16 @@ export default {
      * @return {*}
      */
     handleProps (schema) {
-      const { key, props = {}, change, click, type } = schema
+      const { key = Date.now(), props = {}, on = {} } = schema
 
       const { placeholder, ...rest } = props
 
-      const handleChange = (value) => {
-        this.fromData[key] = value
-        change && change()
-      }
-
-      const handleBtnClick = () => {
-        click && click()
-      }
 
       const defaultProps = {
         on: {
-          input: handleChange,
+          input: (value) => {
+            this.fromData[key] = value
+          }
         },
         props: {
           ...rest,
@@ -166,9 +239,15 @@ export default {
         }
       }
 
-      if (isKey.includes(type)) {
-        defaultProps.on.click = handleBtnClick
-      }
+      // 循环处理事件
+      Object.keys(on).forEach(eventName => {
+        defaultProps.on[eventName] = (value) => {
+          ['input'].includes(eventName) && (this.fromData[key] = value)
+        
+          const fn = on[eventName]
+          fn && isType(fn, 'Function') && fn(value)
+        }
+      })
 
       return {
         defaultProps,
@@ -198,42 +277,34 @@ export default {
     handleSchemaDOM (schema) {
       const { type } = schema
 
-      const tagType = type.toLowerCase()
-
-      const fn = tagTypeFn[tagType]
+      const fn = tagTypeFn[type]
 
       return this[fn](this.handleProps(schema))
     },
-    hansleSearch () {
-      this.$emit('handle-search', this.fromData)
-    }
   },
   created () {
-    // this.configList.forEach(({key, defaultValue}) => {
-    //   this.$set(this.fromData, key, defaultValue || '')
-    // })
-
-    const total = this.configList.reduce((newVal, currentValue) => (newVal + currentValue.col.span), 0)
-
-    if (total <= 24) {
-      this.$set(this.rowStyle, 'marginRight', '80px')
-    }
+    console.log(this.schemaRule)
+    this.addSchemaRule(this.schemaRule)
   },
   render (h) {
     this.h__ = h
+
     return (
       <div class="vl-search__container">
         <el-row gutter={this.gutter} class="vl-row">
           {
-            this.configList.map(({ui, col, type, ...rest}) => {
+            this.rule__list.map(({ui, col, type, hide, labelWidth, ...rest}) => {
 
               const { span } = col
 
+              const { labelStyle, contentStyle } = handleLabelWidth(labelWidth)
+
               return (
+                !hide &&
                 <el-col span={span} class="vl-search-item">
-                  {ui.label && type.toLowerCase() !== 'button'  ? <label style="width: 80px" class="vl-search-item__label">{ui.label}：</label> : null}
-                  <div style="margin-left: 80px;" class="vl-search-item__content">
-                    {this.handleSchemaDOM({type, ui, ...rest})}
+                  {ui.label && type !== 'button'  ? <label style={labelStyle} class="vl-search-item__label">{ui.label}：</label> : null}
+                  <div style={contentStyle} class="vl-search-item__content">
+                    {this.handleSchemaDOM({type, ui, hide, ...rest})}
                   </div>
                 </el-col>
               )

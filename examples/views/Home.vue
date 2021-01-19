@@ -2,12 +2,12 @@
  * @Description: 请输入当前文件描述
  * @Author: @Xin (834529118@qq.com)
  * @Date: 2021-01-13 15:36:52
- * @LastEditTime: 2021-01-18 18:34:20
+ * @LastEditTime: 2021-01-19 16:56:21
  * @LastEditors: @Xin (834529118@qq.com)
 -->
 <template>
   <div class="home">
-    <vl-search :globalOptions="options" :fromData="fromData" :schemaRule="list" />
+    <vl-search ref="Vlsearch" :globalOptions="options" :fromData="fromData" :schemaRule="list" />
   </div>
 </template>
 
@@ -22,13 +22,11 @@ export default {
         col: {
           span: 12,
         },
-        submitClick: () => {
-          console.log('===')
-        }
+        labelWidth: 80,
       },
       list: [
         {
-          key: 'name1',
+          key: '======',
           type: 'Input',
           defaultValue: '姓名',
           ui: {
@@ -72,6 +70,11 @@ export default {
                   value: 2,
                 }
               ],
+              on: {
+                change: (val) => {
+                  console.log('====', val)
+                }
+              }
             },
             prepend: () => {
               return (
@@ -79,8 +82,10 @@ export default {
               )
             },
           },
-          change: (val) => {
-            console.log('input', this, val)
+          on: {
+            change: (val) => {
+              console.log('input', this, val)
+            }
           }
         },
         {
@@ -102,15 +107,13 @@ export default {
           },
           props: {
             placeholder: '请输入年龄',
-            multiple: true,
-            remoteMethod: (query) => {
-              this.list[2].options = [{name: '男', value: 1}].filter(v => v.name.includes(query))
-            }
           },
           col: {
             span: 4,
           },
-          change: this.handleChange
+          on: {
+            change: this.handleChange
+          }
         },
         {
           key: 'time',
@@ -152,8 +155,8 @@ export default {
           col: {
             span: 4,
           },
-          click: () => {
-            console.log('click')
+          on: {
+            click: this.handleDemoClick
           }
         }
       ]
@@ -164,11 +167,15 @@ export default {
       console.log(this.fromData)
     },
     handleDemoClick () {
-      console.log('handleDemoClick')
+      this.$refs.Vlsearch.setConfig('age', 'props', 'disabled', true)
     },
     handleChange () {
-      this.list[0].key = '1212'
-      this.list[0].defaultValue = '12121212'
+      // this.$set(this.list[4].props, 'disabled', true)
+      // this.$set(this.list[5], 'on', {
+      //   click: () => {
+      //   console.log(this)
+      //   }
+      // })
     },
   }
 }

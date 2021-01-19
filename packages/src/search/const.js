@@ -2,7 +2,7 @@
  * @Description: 请输入当前文件描述
  * @Author: @Xin (834529118@qq.com)
  * @Date: 2021-01-15 20:18:54
- * @LastEditTime: 2021-01-18 13:38:12
+ * @LastEditTime: 2021-01-19 16:51:58
  * @LastEditors: @Xin (834529118@qq.com)
  */
 
@@ -18,8 +18,10 @@
  }
 
 export const defaultItmeConfig = {
-  type: '',
+  type: Date.now(),
+  labelWidth: 60,
   defaultValue: '',
+  hide: false,
   col: {
     span: 6,
   },
